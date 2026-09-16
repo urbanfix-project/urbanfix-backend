@@ -227,7 +227,7 @@ La URL real será configurada posteriormente con los datos del proyecto de Supab
 ---
 
 ## Estructura actual del proyecto
-
+```text
 urbanfix-backend/
 │
 ├── prisma/
