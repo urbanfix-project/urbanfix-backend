@@ -25,6 +25,7 @@ Actualmente el proyecto utiliza:
 
 - **Supabase PostgreSQL** para persistencia de datos
 
+
 > La conexión con Supabase y la autenticación todavía no se encuentran implementadas.
 
 ---
