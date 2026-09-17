@@ -24,7 +24,7 @@ Actualmente el proyecto utiliza:
 ### Servicios previstos
 
 - **Supabase PostgreSQL** para persistencia de datos
-- **Supabase Auth** para autenticación de usuarios
+
 
 > La conexión con Supabase y la autenticación todavía no se encuentran implementadas.
 
@@ -298,7 +298,6 @@ Actualmente se encuentra implementado:
 - [ ] Conexión con Supabase
 - [ ] Definición de modelos de datos
 - [ ] Migraciones
-- [ ] Autenticación con Supabase Auth
 - [ ] Endpoints principales de UrbanFix
 
 ## Proyecto
