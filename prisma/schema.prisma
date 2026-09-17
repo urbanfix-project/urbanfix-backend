@@ -43,7 +43,7 @@ enum Profession {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String   // Guardaremos el hash
+  password  String   // Guardamos el hash
   name      String
   role      UserRole @default(CLIENTE)
   profession  Profession?
