@@ -1,13 +1,85 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Generador del cliente de Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ----------------------------------------------------
+// ENUMS
+// ----------------------------------------------------
+
+enum UserRole {
+  CLIENTE
+  TECNICO
+  ADMIN
+}
+
+enum ServiceStatus {
+  PENDIENTE
+  ACEPTADA
+  EN_PROGRESO
+  COMPLETADA
+  RECHAZADA
+  CANCELADA
+}
+
+enum Profession {
+  ELECTRICISTA
+  PLOMERO
+  GASISTA
+  TECNICO_AC
+  CERRAJERO
+  ALBANIL
+}
+
+// ----------------------------------------------------
+// MODELOS
+// ----------------------------------------------------
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Guardaremos el hash
+  name      String
+  role      UserRole @default(CLIENTE)
+  profession  Profession?
+  
+  // Timestamps de auditoría
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  // Un usuario cliente puede crear muchas solicitudes
+  clientRequests     ServiceRequest[] @relation("ClientRequests")
+  
+  // Un usuario técnico puede aceptar muchas solicitudes 
+  technicianRequests ServiceRequest[] @relation("TechnicianRequests")
+
+  @@map("users")
+}
+
+model ServiceRequest {
+  id          String        @id @default(uuid())
+  title       String
+  description String
+  status      ServiceStatus @default(PENDIENTE)
+  requiredProfession Profession?
+
+  // Foreign Keys
+  clientId    String
+  technician   User?         @relation("ClientRequests", fields: [clientId], references: [id])
+
+  // Opcional (?) porque la solicitud nace sin técnico asignado
+  technicianId String?
+  technician   User?         @relation("TechnicianRequests", fields: [technicianId], references: [id])
+
+  // Timestamps de auditoría
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("service_requests")
 }
