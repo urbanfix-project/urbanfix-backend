@@ -266,3 +266,132 @@
  *             example:
  *               message: You already applied to this service request
  */
+
+/**
+ * @openapi
+ * /api/applications/{id}/accept:
+ *   patch:
+ *     tags:
+ *       - Applications
+ *     summary: Aceptar postulacion
+ *     description: Permite que un usuario con rol CLIENTE acepte una postulacion realizada por un tecnico. Al aceptar la postulacion, Application.status pasa a ACEPTADA, ServiceRequest.status pasa a ACEPTADA y ServiceRequest.technicianId se asigna con el technicianId correspondiente a la Application aceptada. Este endpoint no requiere Request Body.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID de la postulacion que el cliente desea aceptar.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: application-uuid
+ *     responses:
+ *       200:
+ *         description: La postulacion fue aceptada correctamente y el tecnico quedo asignado a la solicitud de servicio.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - application
+ *                 - serviceRequest
+ *               properties:
+ *                 application:
+ *                   type: object
+ *                   required:
+ *                     - id
+ *                     - status
+ *                     - technicianId
+ *                     - serviceRequestId
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: application-uuid
+ *                     status:
+ *                       type: string
+ *                       enum:
+ *                         - ACEPTADA
+ *                       example: ACEPTADA
+ *                     technicianId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: technician-uuid
+ *                     serviceRequestId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: service-request-uuid
+ *                 serviceRequest:
+ *                   type: object
+ *                   required:
+ *                     - id
+ *                     - status
+ *                     - technicianId
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: service-request-uuid
+ *                     status:
+ *                       type: string
+ *                       enum:
+ *                         - ACEPTADA
+ *                       example: ACEPTADA
+ *                     technicianId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: technician-uuid
+ *             example:
+ *               application:
+ *                 id: application-uuid
+ *                 status: ACEPTADA
+ *                 technicianId: technician-uuid
+ *                 serviceRequestId: service-request-uuid
+ *               serviceRequest:
+ *                 id: service-request-uuid
+ *                 status: ACEPTADA
+ *                 technicianId: technician-uuid
+ *       401:
+ *         description: No se envio un token JWT valido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication required
+ *             example:
+ *               message: Authentication required
+ *       403:
+ *         description: El usuario esta autenticado pero no posee el rol CLIENTE.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only clients can accept applications
+ *             example:
+ *               message: Only clients can accept applications
+ *       404:
+ *         description: No existe una postulacion con el id indicado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Application not found
+ *             example:
+ *               message: Application not found
+ */
