@@ -1,0 +1,134 @@
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Application:
+ *       type: object
+ *       required:
+ *         - id
+ *         - serviceRequestId
+ *         - technicianId
+ *         - status
+ *         - createdAt
+ *         - updatedAt
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *           example: application-uuid
+ *         serviceRequestId:
+ *           type: string
+ *           format: uuid
+ *           example: service-request-uuid
+ *         technicianId:
+ *           type: string
+ *           format: uuid
+ *           example: technician-uuid
+ *         status:
+ *           type: string
+ *           description: Estado inicial de la postulacion. Al crearse se inicializa como PENDIENTE.
+ *           enum:
+ *             - PENDIENTE
+ *             - ACEPTADA
+ *             - RECHAZADA
+ *           example: PENDIENTE
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-09-23T12:30:00.000Z'
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           example: '2026-09-23T12:30:00.000Z'
+ */
+
+/**
+ * @openapi
+ * /api/service-requests/{id}/applications:
+ *   post:
+ *     tags:
+ *       - Applications
+ *     summary: Postularse a una solicitud de servicio
+ *     description: Permite que un usuario con rol TECNICO se postule a una solicitud de servicio disponible. Al crear la postulacion, serviceRequestId se obtiene del parametro id de la URL, technicianId se obtiene del usuario autenticado mediante JWT y status se inicializa como PENDIENTE. Frontend no debe enviar estos valores manualmente.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID de la solicitud de servicio a la que el tecnico desea postularse.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: service-request-uuid
+ *     responses:
+ *       201:
+ *         description: La postulacion fue creada correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Application'
+ *             example:
+ *               id: application-uuid
+ *               serviceRequestId: service-request-uuid
+ *               technicianId: technician-uuid
+ *               status: PENDIENTE
+ *               createdAt: '2026-09-23T12:30:00.000Z'
+ *               updatedAt: '2026-09-23T12:30:00.000Z'
+ *       401:
+ *         description: No se envio un token JWT valido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication required
+ *             example:
+ *               message: Authentication required
+ *       403:
+ *         description: El usuario esta autenticado pero no posee el rol TECNICO.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only technicians can apply to service requests
+ *             example:
+ *               message: Only technicians can apply to service requests
+ *       404:
+ *         description: No existe una solicitud de servicio con el id indicado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Service request not found
+ *             example:
+ *               message: Service request not found
+ *       409:
+ *         description: El tecnico ya posee una postulacion para esa solicitud.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: You already applied to this service request
+ *             example:
+ *               message: You already applied to this service request
+ */
