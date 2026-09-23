@@ -156,3 +156,123 @@
  *             example:
  *               message: Email already registered
  */
+
+/**
+ * @openapi
+ * /api/auth/login:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Iniciar sesion
+ *     description: Autentica a un usuario registrado en UrbanFix mediante email y contrasena. Si las credenciales son validas, devuelve un token JWT y los datos basicos del usuario autenticado.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: daniela@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: password123
+ *           example:
+ *             email: daniela@example.com
+ *             password: password123
+ *     responses:
+ *       200:
+ *         description: Usuario autenticado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - token
+ *                 - user
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Token JWT para autenticar solicitudes posteriores.
+ *                   example: jwt-token
+ *                 user:
+ *                   type: object
+ *                   required:
+ *                     - id
+ *                     - name
+ *                     - email
+ *                     - role
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: user-uuid
+ *                     name:
+ *                       type: string
+ *                       example: Daniela Rios
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: daniela@example.com
+ *                     role:
+ *                       type: string
+ *                       enum:
+ *                         - CLIENTE
+ *                         - TECNICO
+ *                         - ADMIN
+ *                       example: CLIENTE
+ *                     profession:
+ *                       type: string
+ *                       nullable: true
+ *                       enum:
+ *                         - ELECTRICISTA
+ *                         - PLOMERO
+ *                         - GASISTA
+ *                         - TECNICO_AC
+ *                         - CERRAJERO
+ *                         - ALBANIL
+ *                       example: null
+ *             example:
+ *               token: jwt-token
+ *               user:
+ *                 id: user-uuid
+ *                 name: Daniela Rios
+ *                 email: daniela@example.com
+ *                 role: CLIENTE
+ *                 profession: null
+ *       400:
+ *         description: Datos de inicio de sesion invalidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid login data
+ *             example:
+ *               message: Invalid login data
+ *       401:
+ *         description: Email o contrasena incorrectos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid email or password
+ *             example:
+ *               message: Invalid email or password
+ */
