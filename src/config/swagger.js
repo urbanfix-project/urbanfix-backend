@@ -19,6 +19,15 @@ const swaggerSpec = swaggerJSDoc({
         description: 'Servidor actual',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
   },
   apis: [sourceFiles],
 });
