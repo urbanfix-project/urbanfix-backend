@@ -395,3 +395,101 @@
  *             example:
  *               message: Application not found
  */
+
+/**
+ * @openapi
+ * /api/applications/{id}/reject:
+ *   patch:
+ *     tags:
+ *       - Applications
+ *     summary: Rechazar postulacion
+ *     description: Permite que un usuario con rol CLIENTE rechace una postulacion realizada por un tecnico. Al rechazar la postulacion, Application.status pasa a RECHAZADA. Este endpoint no requiere Request Body.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID de la postulacion que el cliente desea rechazar.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: application-uuid
+ *     responses:
+ *       200:
+ *         description: La postulacion fue rechazada correctamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - id
+ *                 - status
+ *                 - serviceRequestId
+ *                 - technicianId
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   format: uuid
+ *                   example: application-uuid
+ *                 status:
+ *                   type: string
+ *                   enum:
+ *                     - RECHAZADA
+ *                   example: RECHAZADA
+ *                 serviceRequestId:
+ *                   type: string
+ *                   format: uuid
+ *                   example: service-request-uuid
+ *                 technicianId:
+ *                   type: string
+ *                   format: uuid
+ *                   example: technician-uuid
+ *             example:
+ *               id: application-uuid
+ *               status: RECHAZADA
+ *               serviceRequestId: service-request-uuid
+ *               technicianId: technician-uuid
+ *       401:
+ *         description: No se envio un token JWT valido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication required
+ *             example:
+ *               message: Authentication required
+ *       403:
+ *         description: El usuario esta autenticado pero no posee el rol CLIENTE.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only clients can reject applications
+ *             example:
+ *               message: Only clients can reject applications
+ *       404:
+ *         description: No existe una postulacion con el id indicado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Application not found
+ *             example:
+ *               message: Application not found
+ */
