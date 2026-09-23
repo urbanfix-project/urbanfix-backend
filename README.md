@@ -150,6 +150,23 @@ http://localhost:3001/health
 
 ---
 
+## Documentacion de la API con Swagger
+
+Con el servidor en ejecucion, la documentacion interactiva esta disponible en:
+
+```text
+http://localhost:3001/api-docs
+```
+
+La especificacion OpenAPI en formato JSON se puede consultar en:
+
+```text
+http://localhost:3001/api-docs.json
+```
+
+Los endpoints se documentan mediante bloques `@openapi` junto a cada ruta. La
+configuracion general se encuentra en `src/config/swagger.js`.
+
 ## Logging
 
 Durante el desarrollo se utiliza **Morgan** para registrar las peticiones HTTP realizadas al servidor.
