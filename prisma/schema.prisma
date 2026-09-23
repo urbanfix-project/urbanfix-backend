@@ -1,9 +1,7 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-// Generador del cliente de Prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -36,50 +34,100 @@ enum Profession {
   ALBANIL
 }
 
+enum ApplicationStatus {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+}
+
 // ----------------------------------------------------
 // MODELOS
 // ----------------------------------------------------
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String   // Guardamos el hash
-  name      String
-  role      UserRole @default(CLIENTE)
-  profession  Profession?
-  
-  // Timestamps de auditoría
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  name       String
+  role       UserRole    @default(CLIENTE)
+  profession Profession?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relaciones
-  // Un usuario cliente puede crear muchas solicitudes
+  // Relaciones inversas
   clientRequests     ServiceRequest[] @relation("ClientRequests")
-  
-  // Un usuario técnico puede aceptar muchas solicitudes 
   technicianRequests ServiceRequest[] @relation("TechnicianRequests")
+  applications       Application[]
+  reviewsGiven       Review[]         @relation("ReviewsGiven")
+  reviewsReceived    Review[]         @relation("ReviewsReceived")
 
   @@map("users")
 }
 
 model ServiceRequest {
-  id          String        @id @default(uuid())
-  title       String
-  description String
-  status      ServiceStatus @default(PENDIENTE)
+  id                 String        @id @default(uuid())
+  title              String
+  description        String
+  status             ServiceStatus @default(PENDIENTE)
   requiredProfession Profession?
 
-  // Foreign Keys
-  clientId    String
-  technician   User?         @relation("ClientRequests", fields: [clientId], references: [id])
+  // Foreign Key del Cliente (Corregida)
+  clientId String
+  client   User   @relation("ClientRequests", fields: [clientId], references: [id])
 
-  // Opcional (?) porque la solicitud nace sin técnico asignado
+  // Foreign Key del Técnico (Se asigna cuando el cliente acepta una postulación)
   technicianId String?
-  technician   User?         @relation("TechnicianRequests", fields: [technicianId], references: [id])
+  technician   User?   @relation("TechnicianRequests", fields: [technicianId], references: [id])
 
-  // Timestamps de auditoría
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones hacia las nuevas entidades del Data Analyst
+  applications Application[]
+  reviews      Review[]
 
   @@map("service_requests")
+}
+
+// Modelo para medir el "Matching Rate" y el "TTFR"
+model Application {
+  id     String            @id @default(uuid())
+  status ApplicationStatus @default(PENDIENTE)
+
+  // Relación con el trabajo (ServiceRequest)
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+
+  // Relación con el técnico que se postula
+  technicianId String
+  technician   User   @relation(fields: [technicianId], references: [id])
+
+  // Este createdAt es para cumplir la métrica TTFR (Application.createdAt - ServiceRequest.createdAt)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("applications")
+}
+
+// Modelo para medir el "Completion Rate"
+model Review {
+  id      String  @id @default(uuid())
+  rating  Int // Valores del 1 al 5
+  comment String? // Opcional por si el cliente solo deja estrellas
+
+  // Relación con el trabajo finalizado
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+
+  // Quién escribe la reseña (Cliente) y quién la recibe (Técnico)
+  reviewerId String
+  reviewer   User   @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+
+  revieweeId String
+  reviewee   User   @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("reviews")
 }
