@@ -45,6 +45,140 @@
 /**
  * @openapi
  * /api/service-requests/{id}/applications:
+ *   get:
+ *     tags:
+ *       - Applications
+ *     summary: Obtener postulaciones de una solicitud
+ *     description: Obtiene todas las postulaciones asociadas a una solicitud de servicio especifica. Este endpoint esta destinado al usuario con rol CLIENTE para que pueda consultar los tecnicos que se postularon a su solicitud. La respuesta incluye los datos basicos de cada tecnico para que Frontend pueda mostrar la informacion necesaria sin realizar una llamada adicional.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID de la solicitud de servicio cuyas postulaciones se desean consultar.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: service-request-uuid
+ *     responses:
+ *       200:
+ *         description: Devuelve un array con las postulaciones asociadas a la solicitud. Si no existen postulaciones, devuelve un array vacio.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 required:
+ *                   - id
+ *                   - status
+ *                   - serviceRequestId
+ *                   - technicianId
+ *                   - technician
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     format: uuid
+ *                     example: application-uuid
+ *                   status:
+ *                     type: string
+ *                     enum:
+ *                       - PENDIENTE
+ *                       - ACEPTADA
+ *                       - RECHAZADA
+ *                     example: PENDIENTE
+ *                   serviceRequestId:
+ *                     type: string
+ *                     format: uuid
+ *                     example: service-request-uuid
+ *                   technicianId:
+ *                     type: string
+ *                     format: uuid
+ *                     example: technician-uuid
+ *                   technician:
+ *                     type: object
+ *                     description: Datos basicos del tecnico que realizo la postulacion.
+ *                     required:
+ *                       - id
+ *                       - name
+ *                       - profession
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                         example: technician-uuid
+ *                       name:
+ *                         type: string
+ *                         example: Juan Perez
+ *                       profession:
+ *                         type: string
+ *                         nullable: true
+ *                         enum:
+ *                           - ELECTRICISTA
+ *                           - PLOMERO
+ *                           - GASISTA
+ *                           - TECNICO_AC
+ *                           - CERRAJERO
+ *                           - ALBANIL
+ *                         example: PLOMERO
+ *             examples:
+ *               withApplications:
+ *                 summary: Solicitud con postulaciones
+ *                 value:
+ *                   - id: application-uuid
+ *                     status: PENDIENTE
+ *                     serviceRequestId: service-request-uuid
+ *                     technicianId: technician-uuid
+ *                     technician:
+ *                       id: technician-uuid
+ *                       name: Juan Perez
+ *                       profession: PLOMERO
+ *               withoutApplications:
+ *                 summary: Solicitud sin postulaciones
+ *                 value: []
+ *       401:
+ *         description: No se envio un token JWT valido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication required
+ *             example:
+ *               message: Authentication required
+ *       403:
+ *         description: El usuario esta autenticado pero no posee el rol CLIENTE requerido para consultar las postulaciones.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Only clients can access applications
+ *             example:
+ *               message: Only clients can access applications
+ *       404:
+ *         description: No existe una solicitud de servicio con el id indicado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Service request not found
+ *             example:
+ *               message: Service request not found
  *   post:
  *     tags:
  *       - Applications
