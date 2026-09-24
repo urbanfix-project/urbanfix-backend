@@ -155,6 +155,18 @@
  *                   example: Email already registered
  *             example:
  *               message: Email already registered
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
 
 /**
@@ -275,4 +287,16 @@
  *                   example: Invalid email or password
  *             example:
  *               message: Invalid email or password
+ *       500:
+ *         description: Error interno del servidor.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
  */
