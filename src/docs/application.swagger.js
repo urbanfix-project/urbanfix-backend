@@ -1,6 +1,22 @@
 /**
  * @openapi
  * components:
+ *   responses:
+ *     InternalServerError:
+ *       description: Error interno del servidor.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: Internal server error
+ */
+
+/**
+ * @openapi
+ * components:
  *   schemas:
  *     Application:
  *       type: object
@@ -179,6 +195,8 @@
  *                   example: Service request not found
  *             example:
  *               message: Service request not found
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  *   post:
  *     tags:
  *       - Applications
@@ -265,6 +283,8 @@
  *                   example: You already applied to this service request
  *             example:
  *               message: You already applied to this service request
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
 
 /**
@@ -394,6 +414,8 @@
  *                   example: Application not found
  *             example:
  *               message: Application not found
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
 
 /**
@@ -492,4 +514,6 @@
  *                   example: Application not found
  *             example:
  *               message: Application not found
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */

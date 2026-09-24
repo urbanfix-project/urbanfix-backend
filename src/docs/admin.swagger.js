@@ -1,6 +1,22 @@
 /**
  * @openapi
  * components:
+ *   responses:
+ *     InternalServerError:
+ *       description: Error interno del servidor.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: Internal server error
+ */
+
+/**
+ * @openapi
+ * components:
  *   schemas:
  *     AdminUser:
  *       type: object
@@ -145,6 +161,8 @@
  *                   example: Admin access required
  *             example:
  *               message: Admin access required
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
 
 /**
@@ -207,4 +225,6 @@
  *                   example: Admin access required
  *             example:
  *               message: Admin access required
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */

@@ -1,5 +1,21 @@
 /**
  * @openapi
+ * components:
+ *   responses:
+ *     InternalServerError:
+ *       description: Error interno del servidor.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: Internal server error
+ */
+
+/**
+ * @openapi
  * /api/service-requests:
  *   get:
  *     tags:
@@ -118,6 +134,8 @@
  *                   example: Only technicians can access service requests
  *             example:
  *               message: Only technicians can access service requests
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
 
 /**
@@ -288,6 +306,8 @@
  *                   example: Only clients can create service requests
  *             example:
  *               message: Only clients can create service requests
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
 
 /**
@@ -404,6 +424,8 @@
  *                   example: Only clients can access their service requests
  *             example:
  *               message: Only clients can access their service requests
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
 
 /**
@@ -499,6 +521,20 @@
  *               technicianId: null
  *               createdAt: '2026-09-23T00:00:00.000Z'
  *               updatedAt: '2026-09-23T00:00:00.000Z'
+ *       400:
+ *        description: No es un formato de ID válido.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - message
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: Invalid ID format
+ *            example:
+ *              message: Invalid ID format
  *       401:
  *         description: No se envio un token JWT valido.
  *         content:
@@ -527,4 +563,111 @@
  *                   example: Service request not found
  *             example:
  *               message: Service request not found
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
+ */
+
+/**
+ * @openapi
+ * /api/service-requests/{id}/complete:
+ *   patch:
+ *     tags:
+ *       - Service Requests
+ *     summary: Marcar solicitud como completada
+ *     description: Permite que el usuario con rol CLIENTE marque el servicio como COMPLETADA una vez que el técnico haya finalizado el trabajo. Este endpoint no requiere cuerpo (Request Body) ya que la acción está implícita en la URL. Necesita de autenticación mediante JWT.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID de la solicitud de servicio que se desea marcar como completada.
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: service-request-uuid
+ *     responses:
+ *       200:
+ *         description: La solicitud de servicio fue marcada como completada exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - id
+ *                 - title
+ *                 - status
+ *                 - clientId
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   format: uuid
+ *                   example: service-request-uuid
+ *                 title:
+ *                   type: string
+ *                   example: Reparacion de perdida de agua
+ *                 status:
+ *                   type: string
+ *                   enum:
+ *                     - COMPLETADA
+ *                   example: COMPLETADA
+ *                 clientId:
+ *                   type: string
+ *                   format: uuid
+ *                   example: client-uuid
+ *             example:
+ *               id: service-request-uuid
+ *               title: Reparacion de perdida de agua
+ *               status: COMPLETADA
+ *               clientId: client-uuid
+ *       400:
+ *         description: Transición de estado inválida (ej. la solicitud ya estaba cancelada o no había sido aceptada).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Service request cannot be marked as completed from its current status
+ *       401:
+ *         description: No se envió un token JWT válido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Authentication required
+ *       403:
+ *         description: El usuario está autenticado pero no es el cliente propietario de esta solicitud.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: You do not have permission to complete this service request
+ *       404:
+ *         description: No existe una solicitud de servicio con el id indicado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Service request not found
+ *       500:
+ *           $ref: '#/components/responses/InternalServerError'
  */
