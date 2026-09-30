@@ -4,7 +4,7 @@ class ResponseHelper {
   // ------------------------------------------------------------------
 
   // 200 OK - Para GET, PUT, PATCH
-  static success(res, data, message = 'Operación exitosa') {
+  static success(res, data, message = 'La operación se realizó correctamente') {
     return res.status(200).json({
       success: true,
       message,
@@ -13,7 +13,7 @@ class ResponseHelper {
   }
 
   // 201 Created - Exclusivo para POST
-  static created(res, data, message = 'Recurso creado exitosamente') {
+  static created(res, data, message = 'El recurso fue creado correctamente') {
     return res.status(201).json({
       success: true,
       message,
@@ -51,7 +51,7 @@ class ResponseHelper {
   }
 
   // 401 Unauthorized - Falla en login o token faltante/inválido
-  static unauthorized(res, message = 'No autorizado para acceder a este recurso') {
+  static unauthorized(res, message = 'No se envió un token válido o la autenticación falló') {
     return res.status(401).json({
       success: false,
       message,
@@ -59,7 +59,7 @@ class ResponseHelper {
   }
 
   // 403 Forbidden - El token es válido, pero el usuario no tiene permisos
-  static forbidden(res, message = 'Acceso denegado') {
+  static forbidden(res, message = 'El usuario está autenticado pero no tiene permisos para realizar la acción') {
     return res.status(403).json({
       success: false,
       message,
@@ -67,7 +67,7 @@ class ResponseHelper {
   }
 
   // 404 Not Found - El recurso buscado no existe en la base de datos
-  static notFound(res, message = 'Recurso no encontrado') {
+  static notFound(res, message = 'El recurso solicitado no existe') {
     return res.status(404).json({
       success: false,
       message,
@@ -75,7 +75,7 @@ class ResponseHelper {
   }
 
   // 409 Conflict - Ya existe un recurso con el mismo identificador 
-  static conflict(res, message = 'Conflicto con un recurso existente') {
+  static conflict(res, message = 'La operación genera un conflicto con el estado actual del recurso') {
     return res.status(409).json({
       success: false,
       message,
@@ -95,7 +95,7 @@ class ResponseHelper {
   // ------------------------------------------------------------------
 
   // 500 Internal Server Error - Errores internos
-  static error(res, message = 'Error interno del servidor', error = null) {
+  static error(res, message = 'Ocurrió un error inesperado en el servidor', error = null) {
     console.error('[Error del Servidor]:', error || message);
     
     return res.status(500).json({
