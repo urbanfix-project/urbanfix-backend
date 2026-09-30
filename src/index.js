@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
+import apiRoutes from './api.routes.js';
 
 dotenv.config();
 
@@ -56,6 +57,8 @@ app.get('/health', (req, res) => {
   res.set('Cache-Control', 'no-store');
   res.status(200).json({ status: 'ok' });
 });
+
+app.use('/api', apiRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
