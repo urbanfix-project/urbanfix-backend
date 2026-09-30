@@ -58,7 +58,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.use('/api', apiRoutes);
+app.use(apiRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
