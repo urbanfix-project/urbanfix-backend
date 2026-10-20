@@ -17,13 +17,21 @@ export const registerSchema = Joi.object({
     'string.max': 'La contraseña debe tener un maximo de 72 caracteres',
     'string.pattern.base': 'La contraseña debe contener 1 letra mayúscula, 1 minúscula y minimo un número y no puede contener caracteres especiales'
   }),
+  phone: Joi.string().pattern(/^[0-9+\-\s()]{8,20}$/).optional().allow(null, '').messages({
+    'string.pattern.base': 'El teléfono debe contener entre 8 y 20 caracteres numéricos válidos',
+  }),
   role: Joi.string().valid('CLIENTE', 'TECNICO').optional().messages({
     'any.only': 'El rol debe ser CLIENTE o TECNICO',
   }),
   profession: Joi.string()
     .valid('ELECTRICISTA', 'PLOMERO', 'GASISTA', 'TECNICO_AC', 'CERRAJERO', 'ALBANIL')
-    .allow(null)
-    .optional()
+    .when('role', {
+      is: 'CLIENTE',
+      then: Joi.forbidden().messages({
+        'any.unknown': 'Un usuario con rol CLIENTE no puede tener una profesión asignada',
+      }),
+      otherwise: Joi.optional().allow(null),
+    })
     .messages({
       'any.only': 'La profesión seleccionada no es válida',
     }),

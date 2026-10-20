@@ -7,6 +7,9 @@ export const updateProfileSchema = Joi.object({
     'string.max': 'El nombre no puede exceder los 100 caracteres',
     'string.base': 'El nombre debe ser una cadena de texto',
   }),
+  phone: Joi.string().pattern(/^[0-9+\-\s()]{8,20}$/).allow(null).optional().messages({
+    'string.pattern.base': 'El teléfono debe tener un formato válido (entre 8 y 20 dígitos)',
+  }),
   profession: Joi.string()
     .valid('ELECTRICISTA', 'PLOMERO', 'GASISTA', 'TECNICO_AC', 'CERRAJERO', 'ALBANIL')
     .allow(null)

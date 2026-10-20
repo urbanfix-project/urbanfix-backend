@@ -26,6 +26,10 @@
  *                 type: string
  *                 format: email
  *                 example: daniela@example.com
+ *               phone:
+ *                 type: string
+ *                 nullable: true
+ *                 example: '1199887766'
  *               password:
  *                 type: string
  *                 format: password
@@ -64,6 +68,7 @@
  *               value:
  *                 name: Daniela Rios
  *                 email: daniela@example.com
+ *                 phone: '1199887766'
  *                 password: password123
  *                 role: CLIENTE
  *             tecnico:
@@ -71,6 +76,7 @@
  *               value:
  *                 name: Juan Perez
  *                 email: juan@example.com
+ *                 phone: '1187654321'
  *                 password: password123
  *                 role: TECNICO
  *                 profession: ELECTRICISTA
@@ -99,6 +105,10 @@
  *                   type: string
  *                   format: email
  *                   example: daniela@example.com
+ *                 phone:
+ *                   type: string
+ *                   nullable: true
+ *                   example: '1199887766'
  *                 role:
  *                   type: string
  *                   enum:
@@ -124,6 +134,7 @@
  *               id: user-uuid
  *               name: Daniela Rios
  *               email: daniela@example.com
+ *               phone: '1199887766'
  *               role: CLIENTE
  *               profession: null
  *               createdAt: '2026-09-23T00:00:00.000Z'
@@ -220,6 +231,7 @@
  *                     - id
  *                     - name
  *                     - email
+ *                     - phone
  *                     - role
  *                   properties:
  *                     id:
@@ -233,6 +245,10 @@
  *                       type: string
  *                       format: email
  *                       example: daniela@example.com
+ *                     phone:
+ *                       type: string
+ *                       nullable: true
+ *                       example: '1187654321'
  *                     role:
  *                       type: string
  *                       enum:
@@ -257,6 +273,7 @@
  *                 id: user-uuid
  *                 name: Daniela Rios
  *                 email: daniela@example.com
+ *                 phone: '1187654321'        
  *                 role: CLIENTE
  *                 profession: null
  *       400:

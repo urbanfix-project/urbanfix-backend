@@ -8,6 +8,7 @@
  *         - id
  *         - email
  *         - name
+ *         - phone
  *         - role
  *         - createdAt
  *         - updatedAt
@@ -23,6 +24,10 @@
  *         name:
  *           type: string
  *           example: Juan Pérez
+ *         phone:
+ *           type: string
+ *           nullable: true
+ *           example: '1199887766'
  *         role:
  *           type: string
  *           enum:
@@ -60,6 +65,10 @@
  *           minLength: 2
  *           maxLength: 100
  *           example: Juan Carlos Pérez
+ *         phone:
+ *           type: string
+ *           nullable: true
+ *           example: '1199887766'
  *         profession:
  *           type: string
  *           nullable: true
