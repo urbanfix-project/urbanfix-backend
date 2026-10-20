@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../../config/prisma.js';
 
 export const registerUser = async (data) => {
-  const { name, email, password, role, profession } = data;
+  const { name, email, password, phone, role, profession } = data;
 
   // Verificar duplicados en la BDD
   const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -15,14 +15,18 @@ export const registerUser = async (data) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+  const userRole = role || 'CLIENTE';
+  const userProfession = userRole === 'CLIENTE' ? null : (profession || null);
+
   // Interacción con la base de datos
   const newUser = await prisma.user.create({
       data: {
       name,
       email,
       password: hashedPassword,
-      role: role || 'CLIENTE',
-      profession: profession || null,
+      phone: phone || null,
+      role: userRole,
+      profession: userProfession,
       },
   });
 

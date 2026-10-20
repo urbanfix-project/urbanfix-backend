@@ -7,6 +7,7 @@ export const getUserProfile = async (userId) => {
       id: true,
       email: true,
       name: true,
+      phone: true,
       role: true,
       profession: true,
       createdAt: true,
@@ -41,12 +42,14 @@ export const updateUserProfile = async (userId, data) => {
     where: { id: userId },
     data: {
       ...(data.name !== undefined && { name: data.name }),
+      ...(data.phone !== undefined && { phone: data.phone }),
       ...(data.profession !== undefined && { profession: data.profession }),
     },
     select: {
       id: true,
       email: true,
       name: true,
+      phone: true,
       role: true,
       profession: true,
       createdAt: true,
