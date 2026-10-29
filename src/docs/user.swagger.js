@@ -4,156 +4,121 @@
  *   schemas:
  *     UserProfile:
  *       type: object
- *       required:
- *         - id
- *         - email
- *         - name
- *         - phone
- *         - role
- *         - createdAt
- *         - updatedAt
  *       properties:
  *         id:
  *           type: string
  *           format: uuid
- *           example: 550e8400-e29b-41d4-a716-446655440000
  *         email:
  *           type: string
  *           format: email
- *           example: tecnico@test.com
+ *           example: cliente@test.com
  *         name:
  *           type: string
- *           example: Juan Pérez
+ *           example: Cristian Prueba
  *         phone:
  *           type: string
  *           nullable: true
- *           example: '1199887766'
+ *           example: '1198765432'
  *         role:
  *           type: string
- *           enum:
- *             - CLIENTE
- *             - TECNICO
- *             - ADMIN
- *           example: TECNICO
+ *           enum: [CLIENTE, TECNICO, ADMIN]
  *         profession:
  *           type: string
  *           nullable: true
- *           enum:
- *             - ELECTRICISTA
- *             - PLOMERO
- *             - GASISTA
- *             - TECNICO_AC
- *             - CERRAJERO
- *             - ALBANIL
- *           example: PLOMERO
+ *           enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
  *         createdAt:
  *           type: string
  *           format: date-time
- *           example: '2026-09-23T12:00:00.000Z'
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           example: '2026-09-23T12:00:00.000Z'
+ *
+ *     UserProfileResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: Perfil obtenido correctamente
+ *         data:
+ *           $ref: '#/components/schemas/UserProfile'
  *
  *     UpdateProfileInput:
  *       type: object
  *       minProperties: 1
- *       description: Debe enviarse al menos uno de los campos permitidos.
+ *       additionalProperties: false
  *       properties:
  *         name:
  *           type: string
  *           minLength: 2
  *           maxLength: 100
- *           example: Juan Carlos Pérez
+ *           example: Cristian Prueba
  *         phone:
  *           type: string
  *           nullable: true
- *           example: '1199887766'
+ *           example: '1198765432'
  *         profession:
  *           type: string
  *           nullable: true
- *           description: Exclusivo para usuarios con rol TECNICO.
- *           enum:
- *             - ELECTRICISTA
- *             - PLOMERO
- *             - GASISTA
- *             - TECNICO_AC
- *             - CERRAJERO
- *             - ALBANIL
- *           example: ELECTRICISTA
+ *           description: Solo un TECNICO puede asignarse una profesión.
+ *           enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
+ *
+ *     UserError:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         message:
+ *           type: string
+ *           example: Token no proporcionado
  */
 
 /**
  * @openapi
  * /api/users/me:
  *   get:
- *     tags:
- *       - Users
- *     summary: Obtener perfil del usuario autenticado
- *     description: Devuelve la información del perfil correspondiente al usuario que realiza la petición. El ID se extrae automáticamente del token JWT enviado en el header Authorization. Nunca devuelve el campo password.
+ *     tags: [Users]
+ *     summary: Obtener mi perfil
+ *     description: Devuelve el perfil del usuario autenticado. El ID se obtiene del JWT y nunca se devuelve la contraseña.
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
- *         description: Perfil obtenido correctamente.
+ *       '200':
+ *         description: Perfil obtenido correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Perfil obtenido correctamente
- *                 data:
- *                   $ref: '#/components/schemas/UserProfile'
- *       401:
- *         description: Token no proporcionado, inválido o expirado.
+ *               $ref: '#/components/schemas/UserProfileResponse'
+ *       '401':
+ *         description: Token faltante, inválido o expirado
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: Token no proporcionado
+ *       '404':
+ *         description: Usuario no encontrado
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Token no proporcionado
- *       404:
- *         description: El usuario del token ya no existe en la base de datos.
+ *               $ref: '#/components/schemas/UserError'
+ *       '500':
+ *         description: Error interno del servidor
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Usuario no encontrado
- *       500:
- *         description: Error interno del servidor.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Ocurrió un error inesperado en el servidor
+ *               $ref: '#/components/schemas/UserError'
  *
  *   patch:
- *     tags:
- *       - Users
- *     summary: Actualizar perfil del usuario autenticado
- *     description: Permite actualizar parcialmente los datos del usuario logueado (nombre y/o profesión). Si un usuario con rol CLIENTE intenta asignarse una profesión, devolverá un error 400.
+ *     tags: [Users]
+ *     summary: Actualizar mi perfil
+ *     description: |
+ *       Permite modificar nombre, teléfono y profesión.
+ *       Un CLIENTE no puede asignarse una profesión técnica.
+ *       No permite modificar email, password ni role.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -163,106 +128,56 @@
  *           schema:
  *             $ref: '#/components/schemas/UpdateProfileInput'
  *           examples:
- *             actualizarNombre:
- *               summary: Actualizar solo el nombre (Cliente o Técnico)
+ *             cliente:
+ *               summary: Actualizar nombre y teléfono
  *               value:
- *                 name: María Elena García
- *             actualizarTecnico:
- *               summary: Actualizar nombre y profesión (Solo Técnicos)
+ *                 name: Cristian Prueba
+ *                 phone: '1198765432'
+ *             tecnico:
+ *               summary: Actualizar profesión de técnico
  *               value:
- *                 name: Juan Pérez
- *                 profession: GASISTA
+ *                 profession: ELECTRICISTA
  *     responses:
- *       200:
- *         description: Perfil actualizado correctamente.
+ *       '200':
+ *         description: Perfil actualizado correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Perfil actualizado correctamente
- *                 data:
- *                   $ref: '#/components/schemas/UserProfile'
- *       400:
- *         description: Error de validación de datos (Joi) o regla de negocio (ej. CLIENTE intentando asignarse profesión).
+ *               $ref: '#/components/schemas/UserProfileResponse'
+ *       '400':
+ *         description: Datos inválidos o regla de negocio incumplida
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error de validación en los datos ingresados
- *                 errors:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       field:
- *                         type: string
- *                         example: name
- *                       message:
- *                         type: string
- *                         example: El nombre debe tener al menos 2 caracteres
  *             examples:
- *               validacionJoi:
- *                 summary: Error de validación de esquema (Joi)
+ *               rolNoPermitido:
+ *                 summary: Intento de modificar rol
  *                 value:
  *                   success: false
  *                   message: Error de validación en los datos ingresados
  *                   errors:
- *                     - field: name
- *                       message: El nombre debe tener al menos 2 caracteres
- *               reglaNegocio:
- *                 summary: Cliente intentando asignar profesión
+ *                     - field: role
+ *                       message: '"role" is not allowed'
+ *               profesionCliente:
+ *                 summary: Cliente intenta asignarse una profesión
  *                 value:
  *                   success: false
  *                   message: Un usuario con rol CLIENTE no puede tener una profesión asignada
- *       401:
- *         description: Token no proporcionado, inválido o expirado.
+ *       '401':
+ *         description: Token faltante, inválido o expirado
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Token inválido o expirado
- *       404:
- *         description: Usuario no encontrado.
+ *               $ref: '#/components/schemas/UserError'
+ *       '404':
+ *         description: Usuario no encontrado
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Usuario no encontrado
- *       500:
- *         description: Error interno del servidor.
+ *               $ref: '#/components/schemas/UserError'
+ *       '500':
+ *         description: Error interno del servidor
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Ocurrió un error inesperado en el servidor
+ *               $ref: '#/components/schemas/UserError'
  */

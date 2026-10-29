@@ -1,11 +1,80 @@
 /**
  * @openapi
+ * components:
+ *   schemas:
+ *     AuthUser:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         name:
+ *           type: string
+ *           example: Juan Pérez
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: juan@example.com
+ *         phone:
+ *           type: string
+ *           nullable: true
+ *           example: '1123456789'
+ *         role:
+ *           type: string
+ *           enum: [CLIENTE, TECNICO, ADMIN]
+ *         profession:
+ *           type: string
+ *           nullable: true
+ *           enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
+ *     AuthSuccessResponse:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: Inicio de sesión exitoso
+ *         data:
+ *           type: object
+ *           properties:
+ *             token:
+ *               type: string
+ *               description: Token JWT
+ *               example: eyJhbGciOiJIUzI1NiIs...
+ *             user:
+ *               $ref: '#/components/schemas/AuthUser'
+ *
+ *     AuthError:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         message:
+ *           type: string
+ *           example: Credenciales inválidas
+ */
+
+/**
+ * @openapi
  * /api/auth/register:
  *   post:
- *     tags:
- *       - Auth
- *     summary: Registrar usuario
- *     description: Registra un nuevo usuario en la plataforma UrbanFix. El usuario puede registrarse con rol CLIENTE o TECNICO. Si el rol es TECNICO, puede indicar su profesion. Es un endpoint publico y no requiere autenticacion.
+ *     tags: [Auth]
+ *     summary: Registrar usuario (CLIENTE o TECNICO)
+ *     description: |
+ *       Registra un usuario nuevo.
+ *       Si no se envía role, se asigna CLIENTE.
+ *       No permite registrar usuarios ADMIN.
+ *       La contraseña se almacena hasheada con bcrypt.
+ *       La profesión es opcional para TECNICO y no se permite para CLIENTE.
  *     security: []
  *     requestBody:
  *       required: true
@@ -13,181 +82,93 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
- *               - role
+ *             additionalProperties: false
+ *             required: [name, email, password]
  *             properties:
  *               name:
  *                 type: string
- *                 example: Daniela Rios
+ *                 minLength: 2
+ *                 maxLength: 100
+ *                 example: Juan Pérez
  *               email:
  *                 type: string
  *                 format: email
- *                 example: daniela@example.com
- *               phone:
- *                 type: string
- *                 nullable: true
- *                 example: '1199887766'
+ *                 example: juan@example.com
  *               password:
  *                 type: string
  *                 format: password
- *                 example: password123
+ *                 minLength: 8
+ *                 maxLength: 72
+ *                 example: Password123
+ *               phone:
+ *                 type: string
+ *                 nullable: true
+ *                 example: '1123456789'
  *               role:
  *                 type: string
- *                 enum:
- *                   - CLIENTE
- *                   - TECNICO
+ *                 enum: [CLIENTE, TECNICO]
+ *                 default: CLIENTE
  *               profession:
  *                 type: string
- *                 description: Requerido cuando role es TECNICO.
- *                 enum:
- *                   - ELECTRICISTA
- *                   - PLOMERO
- *                   - GASISTA
- *                   - TECNICO_AC
- *                   - CERRAJERO
- *                   - ALBANIL
- *             oneOf:
- *               - title: Registro de cliente
- *                 properties:
- *                   role:
- *                     enum:
- *                       - CLIENTE
- *               - title: Registro de tecnico
- *                 required:
- *                   - profession
- *                 properties:
- *                   role:
- *                     enum:
- *                       - TECNICO
+ *                 nullable: true
+ *                 description: Solo para TECNICO.
+ *                 enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
  *           examples:
  *             cliente:
  *               summary: Registro de cliente
  *               value:
- *                 name: Daniela Rios
- *                 email: daniela@example.com
- *                 phone: '1199887766'
- *                 password: password123
+ *                 name: María García
+ *                 email: maria@example.com
+ *                 password: Password123
  *                 role: CLIENTE
  *             tecnico:
- *               summary: Registro de tecnico
+ *               summary: Registro de técnico electricista
  *               value:
- *                 name: Juan Perez
+ *                 name: Juan Pérez
  *                 email: juan@example.com
- *                 phone: '1187654321'
- *                 password: password123
+ *                 password: Password123
+ *                 phone: '1123456789'
  *                 role: TECNICO
  *                 profession: ELECTRICISTA
  *     responses:
- *       201:
- *         description: Usuario registrado correctamente
+ *       '201':
+ *         description: Usuario registrado exitosamente
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required:
- *                 - id
- *                 - name
- *                 - email
- *                 - role
- *                 - createdAt
- *               properties:
- *                 id:
- *                   type: string
- *                   format: uuid
- *                   example: user-uuid
- *                 name:
- *                   type: string
- *                   example: Daniela Rios
- *                 email:
- *                   type: string
- *                   format: email
- *                   example: daniela@example.com
- *                 phone:
- *                   type: string
- *                   nullable: true
- *                   example: '1199887766'
- *                 role:
- *                   type: string
- *                   enum:
- *                     - CLIENTE
- *                     - TECNICO
- *                   example: CLIENTE
- *                 profession:
- *                   type: string
- *                   nullable: true
- *                   enum:
- *                     - ELECTRICISTA
- *                     - PLOMERO
- *                     - GASISTA
- *                     - TECNICO_AC
- *                     - CERRAJERO
- *                     - ALBANIL
- *                   example: null
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                   example: '2026-09-23T00:00:00.000Z'
+ *               $ref: '#/components/schemas/AuthSuccessResponse'
+ *       '400':
+ *         description: Error de validación de datos o rol no permitido
+ *         content:
+ *           application/json:
  *             example:
- *               id: user-uuid
- *               name: Daniela Rios
- *               email: daniela@example.com
- *               phone: '1199887766'
- *               role: CLIENTE
- *               profession: null
- *               createdAt: '2026-09-23T00:00:00.000Z'
- *       400:
- *         description: Datos de usuario invalidos
+ *               success: false
+ *               message: Error de validación en los datos ingresados
+ *               errors:
+ *                 - field: role
+ *                   message: El rol debe ser CLIENTE o TECNICO
+ *       '409':
+ *         description: El email ya está registrado
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Invalid user data
  *             example:
- *               message: Invalid user data
- *       409:
- *         description: El correo electronico ya esta registrado
+ *               success: false
+ *               message: El correo electrónico ya está registrado
+ *       '500':
+ *         description: Error interno del servidor
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Email already registered
- *             example:
- *               message: Email already registered
- *       500:
- *         description: Error interno del servidor.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
+ *               $ref: '#/components/schemas/AuthError'
  */
 
 /**
  * @openapi
  * /api/auth/login:
  *   post:
- *     tags:
- *       - Auth
- *     summary: Iniciar sesion
- *     description: Autentica a un usuario registrado en UrbanFix mediante email y contrasena. Si las credenciales son validas, devuelve un token JWT y los datos basicos del usuario autenticado.
+ *     tags: [Auth]
+ *     summary: Iniciar sesión
+ *     description: Autentica un usuario mediante email y contraseña. Devuelve un JWT y los datos del usuario sin incluir su contraseña.
  *     security: []
  *     requestBody:
  *       required: true
@@ -195,125 +176,42 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
+ *             additionalProperties: false
+ *             required: [email, password]
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
- *                 example: daniela@example.com
+ *                 example: cliente@test.com
  *               password:
  *                 type: string
  *                 format: password
- *                 example: password123
- *           example:
- *             email: daniela@example.com
- *             password: password123
+ *                 example: Password123
  *     responses:
- *       200:
- *         description: Usuario autenticado correctamente
+ *       '200':
+ *         description: Inicio de sesión exitoso
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required:
- *                 - token
- *                 - user
- *               properties:
- *                 token:
- *                   type: string
- *                   description: Token JWT para autenticar solicitudes posteriores.
- *                   example: jwt-token
- *                 user:
- *                   type: object
- *                   required:
- *                     - id
- *                     - name
- *                     - email
- *                     - phone
- *                     - role
- *                   properties:
- *                     id:
- *                       type: string
- *                       format: uuid
- *                       example: user-uuid
- *                     name:
- *                       type: string
- *                       example: Daniela Rios
- *                     email:
- *                       type: string
- *                       format: email
- *                       example: daniela@example.com
- *                     phone:
- *                       type: string
- *                       nullable: true
- *                       example: '1187654321'
- *                     role:
- *                       type: string
- *                       enum:
- *                         - CLIENTE
- *                         - TECNICO
- *                         - ADMIN
- *                       example: CLIENTE
- *                     profession:
- *                       type: string
- *                       nullable: true
- *                       enum:
- *                         - ELECTRICISTA
- *                         - PLOMERO
- *                         - GASISTA
- *                         - TECNICO_AC
- *                         - CERRAJERO
- *                         - ALBANIL
- *                       example: null
+ *               $ref: '#/components/schemas/AuthSuccessResponse'
+ *       '400':
+ *         description: Datos de inicio de sesión inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthError'
+ *       '401':
+ *         description: Email o contraseña incorrectos
+ *         content:
+ *           application/json:
  *             example:
- *               token: jwt-token
- *               user:
- *                 id: user-uuid
- *                 name: Daniela Rios
- *                 email: daniela@example.com
- *                 phone: '1187654321'        
- *                 role: CLIENTE
- *                 profession: null
- *       400:
- *         description: Datos de inicio de sesion invalidos
+ *               success: false
+ *               message: Credenciales inválidas
+ *       '500':
+ *         description: Error interno del servidor
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Invalid login data
- *             example:
- *               message: Invalid login data
- *       401:
- *         description: Email o contrasena incorrectos
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Invalid email or password
- *             example:
- *               message: Invalid email or password
- *       500:
- *         description: Error interno del servidor.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Internal server error
+ *               $ref: '#/components/schemas/AuthError'
  */
+
