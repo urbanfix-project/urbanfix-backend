@@ -1,15 +1,36 @@
+
 import { Router } from 'express';
-import { authenticate } from '../../middlewares/auth.middleware.js';
+
+import { createServiceRequest, getMyServiceRequests, getAvailableServiceRequests} from './serviceRequest.controller.js';
+import { authenticate, authorize } from '../../middlewares/auth.middleware.js';
+import { validateSchema } from '../../middlewares/validateData.js';
+import { createServiceRequestSchema } from './serviceRequest.schema.js';
 
 const router = Router();
 
-// Ruta de ejemplo protegida por autenticación
-router.get('/',authenticate,
-  (req, res) => {
-    res.status(200).json({
-      message: 'Ruta de solicitudes disponible'
-    });
-  }
+// Crear una solicitud - Solo CLIENTE
+router.post(
+  '/',
+  authenticate,
+  authorize('CLIENTE'),
+  validateSchema(createServiceRequestSchema),
+  createServiceRequest
+);
+
+// Ver mis solicitudes - Solo CLIENTE
+router.get(
+  '/mine',
+  authenticate,
+  authorize('CLIENTE'),
+  getMyServiceRequests
+);
+
+// Ver solicitudes disponibles - Solo TECNICO
+router.get(
+  '/available',
+  authenticate,
+  authorize('TECNICO'),
+  getAvailableServiceRequests
 );
 
 export default router;
