@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import swaggerJSDoc from 'swagger-jsdoc';
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
-const sourceFiles = path.join(currentDirectory, '../**/*.js').replaceAll('\\', '/');
+const docsPath = path.join(currentDirectory, '../docs').replaceAll('\\', '/');
 
 const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -11,14 +11,9 @@ const swaggerSpec = swaggerJSDoc({
     info: {
       title: 'UrbanFix API',
       version: '1.0.0',
-      description: 'Documentacion de la API REST de UrbanFix Solutions',
+      description: 'Endpoints implementados del MVP UrbanFix. Los módulos pendientes se incorporarán cuando estén disponibles.',
     },
-    servers: [
-      {
-        url: '/',
-        description: 'Servidor actual',
-      },
-    ],
+    servers: [{ url: '/', description: 'Servidor actual' }],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -29,7 +24,11 @@ const swaggerSpec = swaggerJSDoc({
       },
     },
   },
-  apis: [sourceFiles],
+  apis: [
+    `${docsPath}/auth.swagger.js`,
+    `${docsPath}/user.swagger.js`,
+    `${docsPath}/serviceRequest.swagger.js`,
+  ],
 });
 
 export default swaggerSpec;
