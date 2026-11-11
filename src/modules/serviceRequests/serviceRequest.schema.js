@@ -26,6 +26,18 @@ export const createServiceRequestSchema = Joi.object({
       'any.required': 'La descripción es obligatoria',
     }),
 
+  address: Joi.string()
+  .trim()
+  .min(5)
+  .max(255)
+  .required()
+  .messages({
+    'string.empty': 'La dirección es obligatoria',
+    'string.min': 'La dirección debe tener al menos 5 caracteres',
+    'string.max': 'La dirección no puede exceder los 255 caracteres',
+    'any.required': 'La dirección es obligatoria',
+  }),  
+
   requiredProfession: Joi.string()
     .valid(
       'ELECTRICISTA',

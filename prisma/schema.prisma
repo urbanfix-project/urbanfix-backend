@@ -70,6 +70,7 @@ model ServiceRequest {
   id                 String        @id @default(uuid())
   title              String
   description        String
+  address            String?
   status             ServiceStatus @default(PENDIENTE)
   requiredProfession Profession?
 

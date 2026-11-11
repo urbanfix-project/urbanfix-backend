@@ -7,6 +7,7 @@ export const createServiceRequest = async (clientId, data) => {
     data: {
       title: data.title,
       description: data.description,
+      address: data.address,
       requiredProfession: data.requiredProfession,
       clientId,
       status: 'PENDIENTE',
