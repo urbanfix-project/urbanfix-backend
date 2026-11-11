@@ -8,6 +8,11 @@
  *         id: { type: string, format: uuid }
  *         title: { type: string, example: Reparación de instalación eléctrica }
  *         description: { type: string, example: Necesito reparar varios enchufes que dejaron de funcionar. }
+ *         address:
+ *           type: string
+ *           nullable: true
+ *           description: Dirección donde se realizará el servicio. Puede ser null en solicitudes anteriores.
+ *           example: Av. Cabildo 2500, Belgrano, CABA
  *         status: { type: string, enum: [PENDIENTE, ACEPTADA, EN_PROGRESO, COMPLETADA, RECHAZADA, CANCELADA], example: PENDIENTE }
  *         requiredProfession: { type: string, nullable: true, enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL], example: ELECTRICISTA }
  *         clientId: { type: string, format: uuid }
@@ -45,8 +50,8 @@
  *           items:
  *             type: object
  *             properties:
- *               field: { type: string, example: title }
- *               message: { type: string, example: El título es obligatorio }
+ *               field: { type: string, example: address }
+ *               message: { type: string, example: La dirección es obligatoria }
  */
 
 /**
@@ -55,7 +60,7 @@
  *   post:
  *     tags: [Service Requests]
  *     summary: Crear solicitud de servicio (CLIENTE)
- *     description: Crea una solicitud con estado PENDIENTE. clientId se obtiene del JWT; status y technicianId no se envían en el body.
+ *     description: Crea una solicitud con estado PENDIENTE. La dirección es obligatoria. clientId se obtiene del JWT; status y technicianId no se envían en el body.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -65,10 +70,16 @@
  *           schema:
  *             type: object
  *             additionalProperties: false
- *             required: [title, description, requiredProfession]
+ *             required: [title, description, address, requiredProfession]
  *             properties:
  *               title: { type: string, minLength: 5, maxLength: 100, example: Reparación de instalación eléctrica }
  *               description: { type: string, minLength: 10, maxLength: 1000, example: Necesito reparar varios enchufes que dejaron de funcionar. }
+ *               address:
+ *                 type: string
+ *                 minLength: 5
+ *                 maxLength: 255
+ *                 description: Dirección donde se realizará el servicio
+ *                 example: Av. Cabildo 2500, Belgrano, CABA
  *               requiredProfession:
  *                 type: string
  *                 enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
