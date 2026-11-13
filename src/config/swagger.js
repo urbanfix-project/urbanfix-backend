@@ -28,6 +28,7 @@ const swaggerSpec = swaggerJSDoc({
     `${docsPath}/auth.swagger.js`,
     `${docsPath}/user.swagger.js`,
     `${docsPath}/serviceRequest.swagger.js`,
+    `${docsPath}/admin.swagger.js`,
   ],
 });
 

@@ -1,230 +1,228 @@
 /**
  * @openapi
  * components:
- *   responses:
- *     InternalServerError:
- *       description: Error interno del servidor.
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               message:
- *                 type: string
- *                 example: Internal server error
- */
-
-/**
- * @openapi
- * components:
  *   schemas:
  *     AdminUser:
  *       type: object
- *       required:
- *         - id
- *         - name
- *         - email
- *         - role
  *       properties:
- *         id:
- *           type: string
- *           format: uuid
- *           example: user-uuid
- *         name:
- *           type: string
- *           example: Daniela Rios
- *         email:
- *           type: string
- *           format: email
- *           example: daniela@example.com
- *         role:
- *           type: string
- *           enum:
- *             - CLIENTE
- *             - TECNICO
- *             - ADMIN
- *           example: CLIENTE
+ *         id: { type: string, format: uuid }
+ *         name: { type: string, example: Cliente Prueba }
+ *         email: { type: string, format: email, example: cliente@test.com }
+ *         role: { type: string, enum: [CLIENTE, TECNICO, ADMIN] }
  *         profession:
  *           type: string
  *           nullable: true
- *           enum:
- *             - ELECTRICISTA
- *             - PLOMERO
- *             - GASISTA
- *             - TECNICO_AC
- *             - CERRAJERO
- *             - ALBANIL
- *           example: null
+ *           enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
+ *         createdAt: { type: string, format: date-time }
+ *
+ *     AdminUserListResponse:
+ *       type: object
+ *       properties:
+ *         success: { type: boolean, example: true }
+ *         message: { type: string, example: Usuarios obtenidos correctamente }
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/AdminUser'
+ *
  *     AdminServiceRequest:
  *       type: object
- *       required:
- *         - id
- *         - title
- *         - status
- *         - clientId
  *       properties:
- *         id:
- *           type: string
- *           format: uuid
- *           example: service-request-uuid
- *         title:
- *           type: string
- *           example: Reparacion de perdida de agua
+ *         id: { type: string, format: uuid }
+ *         title: { type: string, example: Foco roto }
+ *         description: { type: string, example: Reparar lámpara }
+ *         address: { type: string, nullable: true, example: Directorio 1234 }
  *         status:
  *           type: string
- *           enum:
- *             - PENDIENTE
- *             - ACEPTADA
- *             - EN_PROGRESO
- *             - COMPLETADA
- *             - RECHAZADA
- *             - CANCELADA
- *           example: PENDIENTE
+ *           enum: [PENDIENTE, ACEPTADA, EN_PROGRESO, COMPLETADA, RECHAZADA, CANCELADA]
  *         requiredProfession:
  *           type: string
  *           nullable: true
- *           enum:
- *             - ELECTRICISTA
- *             - PLOMERO
- *             - GASISTA
- *             - TECNICO_AC
- *             - CERRAJERO
- *             - ALBANIL
- *           example: PLOMERO
- *         clientId:
- *           type: string
- *           format: uuid
- *           example: client-uuid
- *         technicianId:
- *           type: string
- *           format: uuid
+ *           enum: [ELECTRICISTA, PLOMERO, GASISTA, TECNICO_AC, CERRAJERO, ALBANIL]
+ *         clientId: { type: string, format: uuid }
+ *         technicianId: { type: string, format: uuid, nullable: true }
+ *         client:
+ *           type: object
+ *           properties:
+ *             name: { type: string }
+ *             email: { type: string, format: email }
+ *         technician:
+ *           type: object
  *           nullable: true
- *           example: null
+ *           properties:
+ *             name: { type: string }
+ *             email: { type: string, format: email }
+ *         createdAt: { type: string, format: date-time }
+ *         updatedAt: { type: string, format: date-time }
+ *
+ *     AdminServiceRequestListResponse:
+ *       type: object
+ *       properties:
+ *         success: { type: boolean, example: true }
+ *         message: { type: string, example: Solicitudes obtenidas correctamente }
+ *         data:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/AdminServiceRequest'
+ *
+ *     AdminStatusUpdateResponse:
+ *       type: object
+ *       properties:
+ *         success: { type: boolean, example: true }
+ *         message: { type: string, example: Estado actualizado correctamente }
+ *         data:
+ *           $ref: '#/components/schemas/AdminServiceRequest'
+ *
+ *     AdminError:
+ *       type: object
+ *       properties:
+ *         success: { type: boolean, example: false }
+ *         message: { type: string, example: Estado inválido }
  */
 
 /**
  * @openapi
  * /api/admin/users:
  *   get:
- *     tags:
- *       - Admin
- *     summary: Obtener usuarios registrados
- *     description: Obtiene el listado de usuarios registrados en la plataforma UrbanFix. Este endpoint requiere autenticacion mediante JWT y solo puede ser utilizado por usuarios con rol ADMIN. La respuesta incluye los datos basicos de cada usuario. El campo password nunca aparece en la respuesta.
+ *     tags: [Admin]
+ *     summary: Listar usuarios registrados (ADMIN)
+ *     description: Devuelve usuarios ordenados por fecha de creación, sin exponer contraseñas. Requiere rol ADMIN.
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
- *         description: Devuelve un array con los usuarios registrados. Si no existen usuarios, devuelve un array vacio.
+ *       '200':
+ *         description: Usuarios obtenidos correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/AdminUser'
- *             examples:
- *               usuariosRegistrados:
- *                 summary: Usuarios registrados
- *                 value:
- *                   - id: user-uuid
- *                     name: Daniela Rios
- *                     email: daniela@example.com
- *                     role: CLIENTE
- *                     profession: null
- *               sinUsuarios:
- *                 summary: No hay usuarios registrados
- *                 value: []
- *       401:
- *         description: No se envio un token JWT valido.
+ *               $ref: '#/components/schemas/AdminUserListResponse'
+ *       '401':
+ *         description: Token ausente, inválido o expirado
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Authentication required
- *             example:
- *               message: Authentication required
- *       403:
- *         description: El usuario esta autenticado pero no posee el rol ADMIN.
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '403':
+ *         description: El usuario no tiene rol ADMIN
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Admin access required
- *             example:
- *               message: Admin access required
- *       500:
- *           $ref: '#/components/responses/InternalServerError'
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
  */
 
 /**
  * @openapi
  * /api/admin/service-requests:
  *   get:
- *     tags:
- *       - Admin
- *     summary: Obtener todas las solicitudes de servicio
- *     description: Obtiene todas las solicitudes de servicio registradas en la plataforma UrbanFix. Este endpoint requiere autenticacion mediante JWT y solo puede ser utilizado por usuarios con rol ADMIN.
+ *     tags: [Admin]
+ *     summary: Listar solicitudes de servicio (ADMIN)
+ *     description: Devuelve las solicitudes con datos de cliente y técnico. Permite filtrar por estado.
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         description: Estado por el cual filtrar las solicitudes
+ *         schema:
+ *           type: string
+ *           enum: [PENDIENTE, ACEPTADA, EN_PROGRESO, COMPLETADA, RECHAZADA, CANCELADA]
+ *         example: CANCELADA
  *     responses:
- *       200:
- *         description: Devuelve un array con todas las solicitudes de servicio registradas en la plataforma. Si no existen solicitudes, devuelve un array vacio.
+ *       '200':
+ *         description: Solicitudes obtenidas correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/AdminServiceRequest'
- *             examples:
- *               solicitudesRegistradas:
- *                 summary: Solicitudes de servicio registradas
- *                 value:
- *                   - id: service-request-uuid
- *                     title: Reparacion de perdida de agua
- *                     status: PENDIENTE
- *                     requiredProfession: PLOMERO
- *                     clientId: client-uuid
- *                     technicianId: null
- *               sinSolicitudes:
- *                 summary: No hay solicitudes registradas
- *                 value: []
- *       401:
- *         description: No se envio un token JWT valido.
+ *               $ref: '#/components/schemas/AdminServiceRequestListResponse'
+ *       '400':
+ *         description: Estado de filtro inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '401':
+ *         description: Token ausente, inválido o expirado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '403':
+ *         description: El usuario no tiene rol ADMIN
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ */
+
+/**
+ * @openapi
+ * /api/admin/service-requests/{id}/status:
+ *   patch:
+ *     tags: [Admin]
+ *     summary: Cambiar el estado de una solicitud (ADMIN)
+ *     description: Permite al administrador cambiar manualmente el estado de una solicitud existente.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: UUID de la solicitud de servicio
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             additionalProperties: false
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [PENDIENTE, ACEPTADA, EN_PROGRESO, COMPLETADA, RECHAZADA, CANCELADA]
+ *                 example: CANCELADA
+ *           example:
+ *             status: CANCELADA
+ *     responses:
+ *       '200':
+ *         description: Estado actualizado correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Authentication required
- *             example:
- *               message: Authentication required
- *       403:
- *         description: El usuario esta autenticado pero no posee el rol ADMIN.
+ *               $ref: '#/components/schemas/AdminStatusUpdateResponse'
+ *       '400':
+ *         description: Estado inválido
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               required:
- *                 - message
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Admin access required
- *             example:
- *               message: Admin access required
- *       500:
- *           $ref: '#/components/responses/InternalServerError'
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *             example: { success: false, message: Estado inválido }
+ *       '401':
+ *         description: Token ausente, inválido o expirado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '403':
+ *         description: El usuario no tiene rol ADMIN
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '404':
+ *         description: Solicitud no encontrada
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/AdminError' }
  */
