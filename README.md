@@ -1,48 +1,67 @@
-# UrbanFix Backend
 
-Backend y API REST de **UrbanFix Solutions**, una plataforma web orientada a conectar clientes con técnicos independientes de distintos oficios.
+# UrbanFix Solutions — Backend
 
-Este repositorio contiene el backend del proyecto, desarrollado con **Node.js**, **Express** y **Prisma ORM**, utilizando **PostgreSQL mediante Supabase** como base de datos.
+Backend y API REST de **UrbanFix Solutions**, una plataforma web que conecta clientes con técnicos independientes de distintos oficios.
 
----
+Proyecto grupal desarrollado en **Talently Lab**, con el objetivo de construir un MVP funcional mediante una arquitectura modular y un equipo de trabajo colaborativo.
 
-## Tecnologías
+## Tecnologías utilizadas
 
-Actualmente el proyecto utiliza:
+- Node.js
+- Express.js
+- JavaScript (ES Modules)
+- Prisma ORM 7
+- PostgreSQL (Supabase)
+- JWT (JSON Web Token)
+- Bcryptjs
+- Joi
+- Swagger / OpenAPI 3.0
+- Morgan
+- CORS
+- Dotenv
+- Nodemon
 
-- **Node.js**
-- **Express**
-- **Prisma ORM 7**
-- **PostgreSQL**
-- **CORS**
-- **Dotenv**
-- **Morgan**
-- **Nodemon**
-- **pg**
-- **@prisma/adapter-pg**
-
-### Servicios previstos
-
-- **Supabase PostgreSQL** para persistencia de datos
-
-
-> La conexión con Supabase y la autenticación todavía no se encuentran implementadas.
+**Deploy:** Render  
+**Base de datos:** Supabase PostgreSQL  
+**Arquitectura:** Routes → Controllers → Services → Prisma
 
 ---
 
-## Requisitos
+## Funcionalidades implementadas
 
-Para ejecutar el proyecto localmente se recomienda tener instalado:
+### Autenticación y usuarios
+- Registro de usuarios.
+- Inicio de sesión con JWT.
+- Contraseñas hasheadas mediante bcrypt.
+- Autenticación y autorización por roles.
+- Consulta y actualización del perfil.
 
-- Node.js 22+
-- npm
-- Git
+### Solicitudes de servicio
+- Creación de solicitudes por clientes.
+- Consulta de solicitudes propias.
+- Consulta de solicitudes disponibles para técnicos.
+- Filtrado de solicitudes según la profesión del técnico.
 
-Versión utilizada actualmente durante el desarrollo:
+### Administración
+- Listado de usuarios registrados.
+- Listado general de solicitudes.
+- Filtro de solicitudes por estado.
+- Modificación manual del estado de solicitudes.
+- Acceso restringido al rol ADMIN.
 
-```text
-Node.js v22.18.0
-```
+---
+
+## Roles del sistema
+
+UrbanFix contempla tres roles:
+
+| Rol | Permisos |
+|-----|----------|
+| CLIENTE | Crear solicitudes y consultar sus solicitudes |
+| TECNICO | Consultar solicitudes disponibles según su profesión |
+| ADMIN | Consultar usuarios, supervisar solicitudes y modificar sus estados |
+
+Las rutas protegidas utilizan autenticación JWT y middleware de autorización por roles.
 
 ---
 
@@ -60,57 +79,60 @@ git clone https://github.com/urbanfix-project/urbanfix-backend.git
 cd urbanfix-backend
 ```
 
-### 3. Instalar las dependencias
+### 3. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-Este comando instalará todas las dependencias definidas en `package.json`.
+### 4. Configurar variables de entorno
 
----
-
-## Variables de entorno
-
-Crear un archivo `.env` en la raíz del proyecto.
-
-Ejemplo:
+Crear un archivo `.env` en la raíz:
 
 ```env
 PORT=3001
-DATABASE_URL=
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
+JWT_SECRET="reemplazar_por_una_clave_segura"
 ```
 
-La variable `DATABASE_URL` será utilizada posteriormente para conectar Prisma con PostgreSQL en Supabase.
+`DATABASE_URL` permite la conexión del backend con PostgreSQL.
 
-> El archivo `.env` contiene información sensible y no debe subirse al repositorio.
+`DIRECT_URL` puede utilizarse para operaciones de Prisma, como las migraciones. Si no está definida, la configuración utiliza `DATABASE_URL`.
 
-Se recomienda utilizar un archivo `.env.example` como referencia:
+`JWT_SECRET` se utiliza para firmar y verificar tokens JWT.
 
-```env
-PORT=3001
-DATABASE_URL=
+**Importante:** no subir el archivo `.env` al repositorio.
+
+### 5. Generar el cliente Prisma
+
+```bash
+npx prisma generate
 ```
 
----
+### 6. Aplicar migraciones
 
-## Ejecución
+```bash
+npx prisma migrate deploy
+```
 
-### Modo desarrollo
+Este comando aplica las migraciones existentes a la base de datos configurada.
+
+### 7. Ejecutar el servidor
+
+Modo desarrollo:
 
 ```bash
 npm run dev
 ```
 
-El proyecto utiliza **Nodemon**, por lo que el servidor se reinicia automáticamente cuando se detectan cambios en el código.
-
-### Modo normal
+Modo normal:
 
 ```bash
 npm start
 ```
 
-Por defecto, el servidor se ejecuta en:
+Servidor local:
 
 ```text
 http://localhost:3001
@@ -118,23 +140,21 @@ http://localhost:3001
 
 ---
 
-## Health Check
+## Endpoints de la API
 
-El proyecto cuenta con un endpoint para verificar que el servidor esté funcionando correctamente.
-
-### Endpoint
-
-```http
-GET /health
-```
-
-Ejemplo:
+Base URL:
 
 ```text
-http://localhost:3001/health
+/api
 ```
 
-### Respuesta esperada
+### Health Check
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /health | Verificar el estado del servidor |
+
+Respuesta:
 
 ```json
 {
@@ -142,118 +162,262 @@ http://localhost:3001/health
 }
 ```
 
-### Status HTTP
+### Autenticación
 
-```text
-200 OK
+| Método | Endpoint | Descripción | Acceso |
+|--------|----------|-------------|--------|
+| POST | /api/auth/register | Registrar usuario | Público |
+| POST | /api/auth/login | Iniciar sesión | Público |
+
+El login devuelve un token JWT para acceder a los endpoints protegidos.
+
+### Usuarios
+
+| Método | Endpoint | Descripción | Acceso |
+|--------|----------|-------------|--------|
+| GET | /api/users/me | Consultar perfil propio | Autenticado |
+| PATCH | /api/users/me | Actualizar perfil propio | Autenticado |
+
+### Solicitudes de servicio
+
+| Método | Endpoint | Descripción | Acceso |
+|--------|----------|-------------|--------|
+| POST | /api/service-requests | Crear solicitud | CLIENTE |
+| GET | /api/service-requests/mine | Consultar solicitudes propias | CLIENTE |
+| GET | /api/service-requests/available | Consultar solicitudes disponibles | TECNICO |
+
+Las solicitudes disponibles se filtran según la profesión del técnico autenticado.
+
+### Administración — Semana 6
+
+| Método | Endpoint | Descripción | Acceso |
+|--------|----------|-------------|--------|
+| GET | /api/admin/users | Listar usuarios registrados | ADMIN |
+| GET | /api/admin/service-requests | Listar todas las solicitudes | ADMIN |
+| PATCH | /api/admin/service-requests/:id/status | Modificar estado de solicitud | ADMIN |
+
+#### Listar usuarios
+
+```http
+GET /api/admin/users
 ```
 
----
+Permite consultar todos los usuarios registrados, sin exponer sus contraseñas.
 
-## Documentacion de la API con Swagger
+#### Listar solicitudes
 
-Con el servidor en ejecucion, la documentacion interactiva esta disponible en:
-
-```text
-http://localhost:3001/api-docs
+```http
+GET /api/admin/service-requests
 ```
 
-La especificacion OpenAPI en formato JSON se puede consultar en:
+Devuelve las solicitudes de servicio registradas.
 
-```text
-http://localhost:3001/api-docs.json
+Permite filtrar por estado:
+
+```http
+GET /api/admin/service-requests?status=CANCELADA
 ```
 
-Los endpoints se documentan mediante bloques `@openapi` junto a cada ruta. La
-configuracion general se encuentra en `src/config/swagger.js`.
+#### Modificar estado de solicitud
 
-## Logging
-
-Durante el desarrollo se utiliza **Morgan** para registrar las peticiones HTTP realizadas al servidor.
-
-Por ejemplo:
-
-```text
-GET /health 200 5.604 ms - 15
+```http
+PATCH /api/admin/service-requests/:id/status
 ```
 
-Esto permite visualizar:
+Body:
 
-- Método HTTP
-- Endpoint solicitado
-- Código de respuesta
-- Tiempo de respuesta
-
----
-
-## Prisma ORM
-
-El proyecto utiliza **Prisma ORM 7** para gestionar la comunicación entre el backend y PostgreSQL.
-
-Versiones utilizadas actualmente:
-
-```text
-prisma                 7.10.0
-@prisma/client         7.10.0
-@prisma/adapter-pg     7.10.0
-pg                     8.23.0
-```
-
-### Schema
-
-La definición de los modelos de datos se encuentra en:
-
-```text
-prisma/schema.prisma
-```
-
-Actualmente Prisma está configurado para utilizar PostgreSQL:
-
-```prisma
-datasource db {
-  provider = "postgresql"
+```json
+{
+  "status": "CANCELADA"
 }
 ```
 
-### Prisma Client
+Los estados disponibles son:
 
-El cliente generado por Prisma será ubicado en:
+- PENDIENTE
+- ACEPTADA
+- EN_PROGRESO
+- COMPLETADA
+- RECHAZADA
+- CANCELADA
 
-```text
-src/generated/prisma
-```
-
-según la configuración definida en `schema.prisma`.
-
-### Configuración
-
-La configuración general de Prisma se encuentra en:
-
-```text
-prisma7.config.ts
-```
-
-La conexión con la base de datos utiliza la variable de entorno:
-
-```text
-DATABASE_URL
-```
-
-La URL real será configurada posteriormente con los datos del proyecto de Supabase.
+Estas operaciones requieren un usuario autenticado con rol `ADMIN`.
 
 ---
 
-## Estructura actual del proyecto
+## Autenticación y autorización
+
+La API utiliza JWT mediante el encabezado:
+
+```http
+Authorization: Bearer <token>
+```
+
+El middleware `authenticate` verifica que el token sea válido.
+
+El middleware `authorize` verifica los permisos del usuario según su rol.
+
+Ejemplo:
+
+```javascript
+router.use(authenticate, authorize('ADMIN'));
+```
+
+### Códigos de respuesta HTTP
+
+| Código | Significado |
+|--------|-------------|
+| 200 | Operación exitosa |
+| 201 | Recurso creado |
+| 400 | Datos inválidos |
+| 401 | Token ausente, inválido o expirado |
+| 403 | Usuario sin permisos |
+| 404 | Recurso no encontrado |
+| 409 | Conflicto, por ejemplo, correo duplicado |
+| 500 | Error interno del servidor |
+
+Las respuestas utilizan una estructura JSON con campos como `success`, `message` y `data`, según la operación.
+
+---
+
+## Documentación Swagger
+
+La API cuenta con documentación interactiva mediante Swagger y OpenAPI 3.0.
+
+### Swagger local
+
+http://localhost:3001/api-docs/
+
+### Swagger desplegado
+
+https://urbanfix-backend-7k4q.onrender.com/api-docs/
+
+### Especificación JSON
+
+http://localhost:3001/api-docs.json
+
+Swagger permite:
+
+- Consultar los endpoints documentados.
+- Visualizar parámetros y respuestas.
+- Ingresar el token JWT mediante **Authorize**.
+- Ejecutar solicitudes con **Try it out**.
+
+Los endpoints de administración requieren autenticación con rol `ADMIN`.
+
+---
+
+## Base de datos
+
+UrbanFix utiliza PostgreSQL alojado en Supabase y Prisma ORM para acceder a los datos.
+
+### Modelos principales
+
+**User**
+- Usuarios registrados.
+- Información personal.
+- Rol y profesión.
+
+**ServiceRequest**
+- Solicitudes de servicio.
+- Cliente solicitante.
+- Técnico asignado, cuando corresponda.
+- Estado de la solicitud.
+
+**Application**
+- Postulaciones de técnicos a solicitudes.
+- Estado de cada postulación.
+
+**Review**
+- Modelo de reseñas definido en el esquema de datos.
+
+La existencia de un modelo en Prisma no implica necesariamente que sus endpoints estén implementados.
+
+### Migraciones
+
+Las migraciones se almacenan en:
+
+```text
+prisma/migrations/
+```
+
+Para crear una nueva migración en desarrollo:
+
+```bash
+npx prisma migrate dev --name nombre_migracion
+```
+
+Para generar el cliente Prisma:
+
+```bash
+npx prisma generate
+```
+
+Para consultar los datos visualmente:
+
+```bash
+npx prisma studio
+```
+
+---
+
+## Seed de base de datos
+
+El proyecto incluye un script para generar usuarios iniciales de prueba.
+
+```bash
+npm run seed
+```
+
+El script crea usuarios de los roles ADMIN, CLIENTE y TECNICO, omitiendo registros duplicados.
+
+**Importante:** el seed actual contiene credenciales de prueba. Antes de utilizarlo en producción, deben reemplazarse por credenciales seguras y administradas mediante variables de entorno.
+
+---
+
+## Estructura del proyecto
+
 ```text
 urbanfix-backend/
 │
 ├── prisma/
-│   └── schema.prisma
+│   ├── migrations/
+│   ├── schema.prisma
+│   └── seed.js
 │
 ├── src/
-│   └── index.js
+│   ├── config/
+│   │   ├── prisma.js
+│   │   └── swagger.js
+│   │
+│   ├── docs/
+│   │   ├── admin.swagger.js
+│   │   ├── application.swagger.js
+│   │   ├── auth.swagger.js
+│   │   ├── serviceRequest.swagger.js
+│   │   └── user.swagger.js
+│   │
+│   ├── middlewares/
+│   │   ├── auth.middleware.js
+│   │   └── validateData.js
+│   │
+│   ├── modules/
+│   │   ├── admin/
+│   │   │   ├── admin.controller.js
+│   │   │   ├── admin.routes.js
+│   │   │   └── admin.service.js
+│   │   │
+│   │   ├── auth/
+│   │   ├── serviceRequests/
+│   │   └── users/
+│   │
+│   ├── utils/
+│   │   └── responseHelper.js
+│   │
+│   ├── api.routes.js
+│   └── app.js
 │
-├── .env
+├── index.js
 ├── .env.example
 ├── .gitignore
 ├── package.json
@@ -262,63 +426,71 @@ urbanfix-backend/
 └── README.md
 ```
 
-> Las carpetas generadas automáticamente por herramientas auxiliares de Prisma que no sean necesarias para el proyecto pueden ser eliminadas para mantener limpio el repositorio.
+Los archivos `admin.controller.js` y `admin.service.js` corresponden a la implementación realizada en la semana 6.
 
 ---
 
-## Scripts disponibles
+## Pruebas realizadas
 
-Los principales scripts definidos en `package.json` son:
+Las funcionalidades de administración fueron verificadas mediante Postman.
 
-```json
-{
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  }
-}
-```
+| Prueba | Resultado esperado | Estado |
+|--------|--------------------|--------|
+| Listar usuarios | 200 OK | OK |
+| Listar solicitudes | 200 OK | OK |
+| Modificar estado | 200 OK | OK |
+| Filtrar por estado | 200 OK | OK |
+| Consultar cambio realizado | 200 OK | OK |
+| Enviar estado inválido | 400 Bad Request | OK |
+| Acceder sin token | 401 Unauthorized | OK |
+| Acceder con token CLIENTE | 403 Forbidden | OK |
+| Acceder con token ADMIN | 200 OK | OK |
 
-### `npm run dev`
+Las pruebas confirman el funcionamiento de los endpoints de administración, la persistencia de los cambios y el control de acceso por roles.
 
-Ejecuta el servidor utilizando Nodemon.
-
-```bash
-npm run dev
-```
-
-### `npm start`
-
-Ejecuta el servidor utilizando Node.js.
-
-```bash
-npm start
-```
+Estas verificaciones se realizaron manualmente; no constituyen una suite de pruebas automatizadas.
 
 ---
 
-## Estado actual
+## Estado del proyecto
 
-Actualmente se encuentra implementado:
+### Completado
 
-- [x] Repositorio backend inicializado
-- [x] Proyecto Node.js configurado
-- [x] Servidor Express
-- [x] CORS configurado
-- [x] Variables de entorno con Dotenv
-- [x] Logging HTTP con Morgan
-- [x] Nodemon para desarrollo
-- [x] Endpoint `GET /health`
-- [x] Prisma ORM instalado
-- [x] Prisma configurado para PostgreSQL
-- [x] Driver y adaptador PostgreSQL instalados
-- [ ] Conexión con Supabase
-- [ ] Definición de modelos de datos
-- [ ] Migraciones
-- [ ] Endpoints principales de UrbanFix
+- [x] Configuración de Node.js y Express.
+- [x] Conexión PostgreSQL mediante Supabase.
+- [x] Integración de Prisma ORM.
+- [x] Modelos y migraciones de base de datos.
+- [x] Registro e inicio de sesión.
+- [x] Autenticación JWT.
+- [x] Autorización por roles.
+- [x] Consulta y actualización de perfiles.
+- [x] Creación de solicitudes.
+- [x] Consulta de solicitudes de clientes.
+- [x] Consulta de solicitudes disponibles para técnicos.
+- [x] Endpoints de administración — Semana 6.
+- [x] Pruebas manuales de administración.
+- [x] Documentación Swagger de administración.
+
+---
+
+## Equipo
+
+Proyecto colaborativo desarrollado en **Talently Lab**, con participación de las áreas:
+
+- Backend: M Daniela Rios Valencia y Tobias Escobar
+- Frontend
+- UX/UI
+- QA
+- Project Management
+
+---
+
+## Repositorio
+
+https://github.com/urbanfix-project/urbanfix-backend
 
 ## Proyecto
 
-**UrbanFix Solutions**
+**UrbanFix Solutions — Talently Lab**
 
-Proyecto grupal desarrollado dentro de **Talently Lab**.
+MVP de plataforma web para conectar clientes con técnicos independientes.
