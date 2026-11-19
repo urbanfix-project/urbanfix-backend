@@ -195,3 +195,150 @@
  *             schema:
  *               $ref: '#/components/schemas/ServiceRequestError'
  */
+
+
+/**
+ * @openapi
+ * /api/service-requests/{id}/accept:
+ *   patch:
+ *     tags: [Service Requests]
+ *     summary: Aceptar una solicitud disponible (TECNICO)
+ *     description: |
+ *       Permite a un técnico aceptar una solicitud.
+ *       La solicitud debe estar PENDIENTE, sin técnico
+ *       asignado y coincidir con su profesión.
+ *       La actualización es atómica para evitar
+ *       que dos técnicos acepten el mismo trabajo.
+ *       El technicianId se obtiene del JWT.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: UUID de la solicitud
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Solicitud aceptada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestResponse'
+ *       '400':
+ *         description: El técnico no tiene profesión asignada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '401':
+ *         description: Token ausente, inválido o expirado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '403':
+ *         description: Sin permisos o profesión incompatible
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '404':
+ *         description: Solicitud no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '409':
+ *         description: Solicitud ya no disponible
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *             example:
+ *               success: false
+ *               message: Esta solicitud ya no está disponible
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ */
+
+
+/**
+ * @openapi
+ * /api/service-requests/{id}/reject:
+ *   patch:
+ *     tags: [Service Requests]
+ *     summary: Rechazar una solicitud asignada (TECNICO)
+ *     description: |
+ *       Permite al técnico asignado rechazar una solicitud
+ *       que se encuentre en estado ACEPTADA.
+ *       Al rechazarla, el estado cambia a RECHAZADA
+ *       y technicianId queda en null.
+ *       Solo el técnico asignado puede realizar
+ *       esta operación.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: UUID de la solicitud
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       '200':
+ *         description: Solicitud rechazada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestResponse'
+ *             example:
+ *               success: true
+ *               message: Solicitud rechazada correctamente
+ *               data:
+ *                 id: 18eadece-310a-4bfd-9a8e-a21846d08535
+ *                 title: perdida de agua
+ *                 status: RECHAZADA
+ *                 technicianId: null
+ *       '401':
+ *         description: Token ausente, inválido o expirado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '403':
+ *         description: Sin permisos o solicitud no asignada al técnico
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *             example:
+ *               success: false
+ *               message: No tenés permiso para rechazar esta solicitud
+ *       '404':
+ *         description: Solicitud no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '409':
+ *         description: La solicitud no está en estado ACEPTADA
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestError'
+ */
+
